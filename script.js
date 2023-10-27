@@ -145,4 +145,18 @@ function stand() {
     } else {
         playerMoney += betAmount;
         updateMoney();
-        endGame
+        endGame("It's a Tie!");
+    }
+}
+
+function updateMoney() {
+    document.getElementById("player-money").innerText = playerMoney;
+    document.getElementById("bet-amount").innerText = betAmount;
+}
+
+function endGame(message) {
+    displayGameState();
+    alert(message);
+    startGame();
+}
+
