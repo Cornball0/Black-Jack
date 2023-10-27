@@ -20,8 +20,8 @@ function startGame() {
     playerScore = calculateScore(playerHand);
     dealerScore = calculateScore(dealerHand);
 
-    // Get the bet amount from the user
-    betAmount = parseInt(prompt("Enter your bet amount:"));
+    // Get the bet amount from the slider
+    betAmount = parseInt(document.getElementById("bet-slider").value);
 
     // Validate the bet amount
     if (isNaN(betAmount) || betAmount <= 0 || betAmount > playerMoney) {
@@ -174,6 +174,9 @@ function stand() {
         dealCard(dealerHand);
     }
 
+    // Reveal dealer's second card
+    displayGameState();
+
     if (dealerScore > 21 || playerScore > dealerScore) {
         playerMoney += betAmount * 2;
         updateMoney();
@@ -199,3 +202,4 @@ function endGame(message) {
     alert(message);
     startGame();
 }
+
