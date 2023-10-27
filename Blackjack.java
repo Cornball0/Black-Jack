@@ -1,108 +1,128 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+let deck = [];
+let playerHand = [];
+let dealerHand = [];
+let playerScore = 0;
+let dealerScore = 0;
 
-public class Blackjack {
-    private static List<String> deck = new ArrayList<>();
-    private static List<String> playerHand = new ArrayList<>();
-    private static List<String> dealerHand = new ArrayList<>();
-    private static int playerScore = 0;
-    private static int dealerScore = 0;
+function startGame() {
+    initializeDeck();
+    shuffleDeck();
 
-    public static void main(String[] args) {
-        initializeDeck();
-        shuffleDeck();
+    playerHand = [];
+    dealerHand = [];
+    playerScore = 0;
+    dealerScore = 0;
 
-        startGame();
+    dealCard(playerHand);
+    dealCard(dealerHand);
+    dealCard(playerHand);
+    dealCard(dealerHand);
+
+    displayGameState();
+}
+
+function initializeDeck() {
+    const ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+    const suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
+
+    for (const suit of suits) {
+        for (const rank of ranks) {
+            deck.push({ rank, suit });
+        }
     }
+}
 
-    private static void initializeDeck() {
-        String[] ranks = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
-        String[] suits = {"Hearts", "Diamonds", "Clubs", "Spades"};
+function shuffleDeck() {
+    deck = deck.sort(() => Math.random() - 0.5);
+}
 
-        for (String suit : suits) {
-            for (String rank : ranks) {
-                deck.add(rank + " of " + suit);
-            }
+function dealCard(hand) {
+    const card = deck.pop();
+    hand.push(card);
+    updateScore(hand);
+    displayGameState();
+}
+
+function updateScore(hand) {
+    let score = 0;
+    let aceCount = 0;
+
+    for (const card of hand) {
+        const rank = card.rank;
+        switch (rank) {
+            case "A":
+                score += 11;
+                aceCount++;
+                break;
+            case "K":
+            case "Q":
+            case "J":
+                score += 10;
+                break;
+            default:
+                score += parseInt(rank);
         }
     }
 
-    private static void shuffleDeck() {
-        Collections.shuffle(deck);
+    // Adjust for Aces
+    while (score > 21 && aceCount > 0) {
+        score -= 10;
+        aceCount--;
     }
 
-    private static void startGame() {
-        playerHand.clear();
-        dealerHand.clear();
-        playerScore = 0;
-        dealerScore = 0;
+    if (hand === playerHand) {
+        playerScore = score;
+    } else {
+        dealerScore = score;
+    }
+}
 
-        // Deal initial cards
-        dealCard(playerHand);
+function displayGameState() {
+    document.getElementById("output").innerHTML = `Player's Score: ${playerScore} | Dealer's Score: ${dealerScore}`;
+
+    displayHand(playerHand, "player-hand");
+    displayHand(dealerHand, "dealer-hand");
+}
+
+function displayHand(hand, elementId) {
+    const handElement = document.getElementById(elementId);
+    handElement.innerHTML = "";
+
+    for (const card of hand) {
+        const cardElement = document.createElement("div");
+        cardElement.className = "card";
+        if (elementId === "dealer-hand" && hand.indexOf(card) === 0) {
+            cardElement.classList.add("hidden");
+        }
+        cardElement.innerHTML = `${card.rank}<br>${card.suit}`;
+        handElement.appendChild(cardElement);
+    }
+}
+
+function hit() {
+    dealCard(playerHand);
+
+    if (playerScore > 21) {
+        endGame("Player Busts! Dealer Wins!");
+    }
+}
+
+function stand() {
+    while (dealerScore < 17) {
         dealCard(dealerHand);
-        dealCard(playerHand);
-        dealCard(dealerHand);
-
-        displayGameState();
-
-        if (isBlackjack(playerHand)) {
-            endGame("Player got Blackjack! You win!");
-        }
     }
 
-    private static void dealCard(List<String> hand) {
-        String card = deck.remove(0);
-        hand.add(card);
-        updateScore(hand);
+    if (dealerScore > 21 || playerScore > dealerScore) {
+        endGame("Player Wins!");
+    } else if (dealerScore > playerScore) {
+        endGame("Dealer Wins!");
+    } else {
+        endGame("It's a Tie!");
     }
+}
 
-    private static void updateScore(List<String> hand) {
-        int score = 0;
-        int aceCount = 0;
-
-        for (String card : hand) {
-            String rank = card.split(" ")[0];
-            switch (rank) {
-                case "A":
-                    score += 11;
-                    aceCount++;
-                    break;
-                case "K":
-                case "Q":
-                case "J":
-                    score += 10;
-                    break;
-                default:
-                    score += Integer.parseInt(rank);
-            }
-        }
-
-        // Adjust for Aces
-        while (score > 21 && aceCount > 0) {
-            score -= 10;
-            aceCount--;
-        }
-
-        if (hand == playerHand) {
-            playerScore = score;
-        } else {
-            dealerScore = score;
-        }
-    }
-
-    private static void displayGameState() {
-        System.out.println("Player's hand: " + playerHand + " (Score: " + playerScore + ")");
-        System.out.println("Dealer's hand: " + dealerHand.get(0) + " and [Hidden]");
-    }
-
-    private static boolean isBlackjack(List<String> hand) {
-        return hand.size() == 2 && (playerScore == 21 || dealerScore == 21);
-    }
-
-    private static void endGame(String message) {
-        displayGameState();
-        System.out.println(message);
-        System.exit(0);
-    }
+function endGame(message) {
+    displayGameState();
+    alert(message);
+    startGame();
 }
