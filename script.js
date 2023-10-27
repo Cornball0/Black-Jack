@@ -109,12 +109,16 @@ function displayHand(hand, elementId) {
     for (const card of hand) {
         const cardElement = document.createElement("div");
         cardElement.className = "card";
-        if (elementId === "dealer-hand" && hand.indexOf(card) === 0 && playerScore < 21) {
+        if (elementId === "dealer-hand" && hand.indexOf(card) === 0 && !isPlayerTurn()) {
             cardElement.classList.add("hidden");
         }
         cardElement.innerHTML = `${card.rank}<br>${card.suit}`;
         handElement.appendChild(cardElement);
     }
+}
+
+function isPlayerTurn() {
+    return playerScore < 21;
 }
 
 function hit() {
@@ -159,4 +163,5 @@ function endGame(message) {
     alert(message);
     startGame();
 }
+
 
