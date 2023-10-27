@@ -14,10 +14,15 @@
             <div id="dealer-hand" class="hand"></div>
             <div id="player-hand" class="hand"></div>
         </div>
+        <div id="money-container">
+            <p>Money: $<span id="player-money">500</span></p>
+            <p>Bet: $<span id="bet-amount">0</span></p>
+        </div>
         <div id="buttons-container">
             <button onclick="startGame()">Start Game</button>
             <button onclick="hit()">Hit</button>
             <button onclick="stand()">Stand</button>
+            <button onclick="resetGame()">Reset Game</button>
         </div>
     </div>
 
