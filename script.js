@@ -20,9 +20,14 @@ function startGame() {
     playerScore = calculateScore(playerHand);
     dealerScore = calculateScore(dealerHand);
 
-    // Reset bet amount
-    betAmount = 0;
-    updateMoney();
+    // Get the bet amount from the user
+    betAmount = parseInt(prompt("Enter your bet amount:"));
+
+    // Validate the bet amount
+    if (isNaN(betAmount) || betAmount <= 0 || betAmount > playerMoney) {
+        alert("Invalid bet amount. Please enter a valid amount.");
+        return;
+    }
 
     dealCard(playerHand);
     dealCard(dealerHand);
@@ -164,6 +169,7 @@ function hit() {
 }
 
 function stand() {
+    // Dealer draws cards until score is 17 or more
     while (dealerScore < 17) {
         dealCard(dealerHand);
     }
@@ -193,5 +199,3 @@ function endGame(message) {
     alert(message);
     startGame();
 }
-
-
