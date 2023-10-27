@@ -17,8 +17,8 @@ function startGame() {
 
     playerHand = [];
     dealerHand = [];
-    playerScore = 0;
-    dealerScore = 0;
+    playerScore = calculateScore(playerHand);
+    dealerScore = calculateScore(dealerHand);
 
     // Reset bet amount
     betAmount = 0;
@@ -94,6 +94,36 @@ function updateScore(hand) {
     } else {
         dealerScore = score;
     }
+}
+
+function calculateScore(hand) {
+    let score = 0;
+    let aceCount = 0;
+
+    for (const card of hand) {
+        const rank = card.rank;
+        switch (rank) {
+            case "A":
+                score += 11;
+                aceCount++;
+                break;
+            case "K":
+            case "Q":
+            case "J":
+                score += 10;
+                break;
+            default:
+                score += parseInt(rank);
+        }
+    }
+
+    // Adjust for Aces
+    while (score > 21 && aceCount > 0) {
+        score -= 10;
+        aceCount--;
+    }
+
+    return score;
 }
 
 function displayGameState() {
