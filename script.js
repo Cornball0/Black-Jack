@@ -3,8 +3,15 @@ let playerHand = [];
 let dealerHand = [];
 let playerScore = 0;
 let dealerScore = 0;
+let playerMoney = 500;
+let betAmount = 0;
 
 function startGame() {
+    if (playerMoney <= 0) {
+        endGame("Game Over! You're out of money.");
+        return;
+    }
+
     initializeDeck();
     shuffleDeck();
 
@@ -12,6 +19,10 @@ function startGame() {
     dealerHand = [];
     playerScore = 0;
     dealerScore = 0;
+
+    // Reset bet amount
+    betAmount = 0;
+    updateMoney();
 
     dealCard(playerHand);
     dealCard(dealerHand);
@@ -21,9 +32,17 @@ function startGame() {
     displayGameState();
 }
 
+function resetGame() {
+    // Refund the bet amount
+    playerMoney += betAmount;
+    startGame();
+}
+
 function initializeDeck() {
     const ranks = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
     const suits = ["Hearts", "Diamonds", "Clubs", "Spades"];
+
+    deck = [];
 
     for (const suit of suits) {
         for (const rank of ranks) {
@@ -79,7 +98,6 @@ function updateScore(hand) {
 
 function displayGameState() {
     document.getElementById("output").innerHTML = `Player's Score: ${playerScore} | Dealer's Score: ${dealerScore}`;
-
     displayHand(playerHand, "player-hand");
     displayHand(dealerHand, "dealer-hand");
 }
@@ -91,7 +109,7 @@ function displayHand(hand, elementId) {
     for (const card of hand) {
         const cardElement = document.createElement("div");
         cardElement.className = "card";
-        if (elementId === "dealer-hand" && hand.indexOf(card) === 0) {
+        if (elementId === "dealer-hand" && hand.indexOf(card) === 0 && playerScore < 21) {
             cardElement.classList.add("hidden");
         }
         cardElement.innerHTML = `${card.rank}<br>${card.suit}`;
@@ -100,9 +118,13 @@ function displayHand(hand, elementId) {
 }
 
 function hit() {
-    dealCard(playerHand);
+    if (playerScore < 21) {
+        dealCard(playerHand);
+    }
 
     if (playerScore > 21) {
+        playerMoney -= betAmount;
+        updateMoney();
         endGame("Player Busts! Dealer Wins!");
     }
 }
@@ -113,16 +135,14 @@ function stand() {
     }
 
     if (dealerScore > 21 || playerScore > dealerScore) {
+        playerMoney += betAmount * 2;
+        updateMoney();
         endGame("Player Wins!");
     } else if (dealerScore > playerScore) {
+        playerMoney -= betAmount;
+        updateMoney();
         endGame("Dealer Wins!");
     } else {
-        endGame("It's a Tie!");
-    }
-}
-
-function endGame(message) {
-    displayGameState();
-    alert(message);
-    startGame();
-}
+        playerMoney += betAmount;
+        updateMoney();
+        endGame
